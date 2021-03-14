@@ -3,9 +3,8 @@
 	Assignment 1 - Created using Java GUI (Swing)
 	Notepad UI
 	@author Artem Fetissov
-	@version 1.0
+	@version 1.1
  */
-
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.filechooser.*;
@@ -30,23 +29,25 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 	
 	static JTextArea editorAreaText;
 	JScrollPane editorScrollPane;
+	static DialogClose cd, cd2;
 	
-	// Create the menu structure
 
-	JRadioButtonMenuItem rbMenuItem;
-	JCheckBoxMenuItem cbMenuItem;
-	
 	static class MenuActionListener implements ActionListener {
 		public void actionPerformed (ActionEvent actionEvent) {
 			String s = actionEvent.getActionCommand();
 			System.out.println ("Selected: " + actionEvent.getActionCommand());
 			
 			switch (s) {
+				//										//
+				// Action commands for the File menu:	//
+				//										//
 				case "New":
 					System.out.println("Create new file");
-					//TODO: write code to create a new file
+					
+					// Set the text area to be blank 
+                    editorAreaText.setText("");
+                    break;
 				case "Open":
-					//TODO: write code to open a file
 					// create an object of JFileChooser class 
 		            JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory()); 
 		            
@@ -69,7 +70,7 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 		                     // Buffered reader 
 		                     BufferedReader br = new BufferedReader(fr); 
 		   
-		                     // Initilize sl 
+		                     // Initialize sl 
 		                     sl = br.readLine(); 
 		   
 		                     // Take the input from the file 
@@ -81,15 +82,15 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 		                     editorAreaText.setText(sl); 
 		                 } 
 		                 catch (Exception evt) { 
-		                     System.out.println( evt.getMessage()); 
+		                     System.out.println(evt.getMessage()); 
 		                 } 
 		            } 
 		            // if the user cancelled the operation 
-		            else break;
-		                //l.setText("the user cancelled the operation"); 
+		            else {
+		            	System.out.println("The user cancelled operation");
+		            }
+		            break;
 				case "Save":
-					//TODO: write code to save file
-
 		            // Create an object of JFileChooser class 
 		            JFileChooser k = new JFileChooser("f:"); 
 		  
@@ -119,12 +120,27 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 		                } 
 		            } 
 		            // If the user cancelled the operation 
-		            else
+		            else {
 		            	System.out.println("The user cancelled operation");
-				
+		            }
+		            
+				case "Edit":
+					break;
+				case "Exit":
+					cd = new DialogClose();
+					cd.display();				
+					System.out.println("Exiting...");
+
+			        
+			    //										//
+			    // Action commands for the Format menu:	//
+			    //										//
+
 		}
 		}
 	}
+	
+
 
 	public static void main(String args[]) { // Construct the frame
 		EventQueue.invokeLater(new Runnable() {
@@ -133,10 +149,15 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
             Notepad frame = new Notepad();
             JMenu fileMenu, formatMenu, sizeSubmenu;
             
+            String imgURL = "./note.png";
+			//Set the frame icon to an image loaded from a file.
+            frame.setIconImage(new ImageIcon(imgURL).getImage());
+            
+            // new DialogClose().display();
+            
             ActionListener menuListener = new MenuActionListener();
-            JMenuBar menuBar = new JMenuBar();
-             
-			
+            JMenuBar menuBar = new JMenuBar();			
+            
 			// Build the file menu.
 			fileMenu = new JMenu("File");
 			fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -157,11 +178,11 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 			saveMenuItem.addActionListener(menuListener);
 			fileMenu.add(saveMenuItem);
 
+			JMenuItem editMenuItem = new JMenuItem("Edit", KeyEvent.VK_E);
+			editMenuItem.addActionListener(menuListener);
+			fileMenu.add(editMenuItem);
+			
 			fileMenu.addSeparator();
-
-			JMenu editMenu = new JMenu("Edit");
-			editMenu.setMnemonic(KeyEvent.VK_E);
-			menuBar.add(editMenu);
 			
 			JMenuItem exitMenuItem = new JMenuItem("Exit", KeyEvent.VK_X);
 			exitMenuItem.addActionListener(menuListener);
@@ -170,10 +191,114 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 			// TODO: create menus
 			
 			// Build the file menu.
-			fileMenu = new JMenu("Format");
-			fileMenu.setMnemonic(KeyEvent.VK_F);
+			formatMenu = new JMenu("Format");
+			formatMenu.setMnemonic(KeyEvent.VK_F);
 			menuBar.add(fileMenu);
+			
+			JCheckBoxMenuItem boldMenuItem = new JCheckBoxMenuItem("Bold");
+			boldMenuItem.setMnemonic(KeyEvent.VK_B);
+			formatMenu.add(boldMenuItem);
+			
+			boldMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+
+	                AbstractButton aButton = (AbstractButton) event.getSource();
+	                boolean selected = aButton.getModel().isSelected();
+
+	                if (selected) {
+	              	  System.out.println("Bold activated");
+	              	// set bold font 
+			            Font f = new Font("Serif", Font.BOLD, 12); 
+			            editorAreaText.setFont(f);
+	                } else {
+	                	// set plain font 
+	                    Font f = new Font("Serif", Font.PLAIN, 12); 
+	                    editorAreaText.setFont(f); 
+	              	  	System.out.println("Bold deactivated");
+	                }
+				
+				}
+			});
+			
+			JCheckBoxMenuItem italicMenuItem = new JCheckBoxMenuItem("Italic");
+			italicMenuItem.setMnemonic(KeyEvent.VK_I);
+			formatMenu.add(italicMenuItem);
+			
+			italicMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+
+	                AbstractButton aButton = (AbstractButton) event.getSource();
+	                boolean selected = aButton.getModel().isSelected();
+
+	                if (selected) {
+	              	  System.out.println("Italic activated");
+	              	// set bold font 
+			            Font f = new Font("Serif", Font.ITALIC, 12); 
+			            editorAreaText.setFont(f);
+	                } else {
+	                	// set plain font 
+	                    Font f = new Font("Serif", Font.PLAIN, 12); 
+	                    editorAreaText.setFont(f); 
+	              	  	System.out.println("Italic deactivated");
+	                }
+				
+				}
+			});
             
+			sizeSubmenu = new JMenu("Size");
+			sizeSubmenu.setMnemonic(KeyEvent.VK_Z);
+			
+			// Create a group for radio buttons
+			ButtonGroup group = new ButtonGroup();
+			
+			JRadioButtonMenuItem rbMenuItem1 = new JRadioButtonMenuItem("Small");
+			rbMenuItem1.setMnemonic(KeyEvent.VK_R);
+			group.add(rbMenuItem1);
+			sizeSubmenu.add(rbMenuItem1);
+			
+			JRadioButtonMenuItem rbMenuItem2 = new JRadioButtonMenuItem("Medium");
+			rbMenuItem2.setSelected(true);
+			rbMenuItem2.setMnemonic(KeyEvent.VK_R);
+			group.add(rbMenuItem2);
+			sizeSubmenu.add(rbMenuItem2);
+			
+			JRadioButtonMenuItem rbMenuItem3 = new JRadioButtonMenuItem("Large");
+			rbMenuItem3.setMnemonic(KeyEvent.VK_R);
+			group.add(rbMenuItem3);
+			sizeSubmenu.add(rbMenuItem3);
+			
+			rbMenuItem1.addActionListener(new ActionListener() {
+		        @Override
+		        public void actionPerformed(ActionEvent e) {
+		        	Font f = new Font("Serif", Font.PLAIN, 10); 
+		            editorAreaText.setFont(f);
+
+		        }
+		    });
+			
+			rbMenuItem2.addActionListener(new ActionListener() {
+		        @Override
+		        public void actionPerformed(ActionEvent e) {
+		        	Font f = new Font("Serif", Font.PLAIN, 12); 
+		            editorAreaText.setFont(f);
+
+		        }
+		    });
+			
+			rbMenuItem3.addActionListener(new ActionListener() {
+		        @Override
+		        public void actionPerformed(ActionEvent e) {
+		        	Font f = new Font("Serif", Font.PLAIN, 14); 
+		            editorAreaText.setFont(f);
+
+		        }
+		    });
+			
+			formatMenu.add(sizeSubmenu);
+			menuBar.add(formatMenu);
+			
             frame.setJMenuBar(menuBar);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setResizable(true);
@@ -189,12 +314,9 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 	
 		public Notepad() { // Frame constructor
 			setTitle("Notepad Editor");
-			
-			
 			pane = new JPanel(new GridBagLayout());
 			c = new GridBagConstraints();
 
-			
 			// Add scroll pane
 			c.gridx = 0;
 			c.gridy = 0;
@@ -203,47 +325,10 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 			editorScrollPane = new JScrollPane(editorAreaText);
 			pane.add(editorScrollPane, c);
 			
-			
-			
-			this.setContentPane(pane);
-			
-			/*
-			startButton.addActionListener(new ActionListener() {
-		         public void actionPerformed(ActionEvent e) {
-		        	 start_label.setText("Start.");
-		        	 startTextField.setText("Start");
-		        	 stopButton.setEnabled(true);
-		        	 
-		        	 // TODO: add code to start timer
-		        	 if (timer != null && timer.isRunning()) {
-		                 return;
-		              }
-		        	 elapsedTextField.setText("");
-		             timer = new Timer(1000, new TimerListener());
-		             timer.start();
 
-		         }          
-		      });
-				*/
-			
-			
+			this.setContentPane(pane);		
 		}
-			
 
-		
-
-		// Method for creating buttons
-		private JButton createButton(String text, String ac, ActionListener handler) {
-			JButton b = new JButton(text);
-			b.setActionCommand(ac);
-			b.addActionListener(handler);
-			b.setVerticalTextPosition(AbstractButton.CENTER);
-		    b.setHorizontalTextPosition(AbstractButton.CENTER);
-		    b.setBorder(new MatteBorder(1, 1, 1, 1, Color.black));
-			
-			return b;
-		}
-		
 		@Override
 			public void actionPerformed(ActionEvent e) {
 					
@@ -251,8 +336,11 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 		
 		@Override
 		public void windowClosing(WindowEvent we) {
-			dispose();
-	        System.exit(0);
+			cd2 = new DialogClose();
+			cd2.display();				
+			System.out.println("Exiting...");
+			System.exit(0);
+			
 		}
 
 		@Override
@@ -263,7 +351,11 @@ public class Notepad extends JFrame implements ActionListener, WindowListener {
 
 		@Override
 		public void windowClosed(WindowEvent arg0) {
-			// TODO Auto-generated method stub
+			cd2 = new DialogClose();
+			cd2.display();				
+			System.out.println("Exiting...");
+			System.exit(0);
+			
 			
 		}
 
